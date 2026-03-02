@@ -12,7 +12,7 @@ tracker = HandTracker(WIDTH, HEIGHT)
 mode = "attract"
 
 while not renderer.should_close():
-    target, fingers = tracker.get_hand_data()
+    target, fingers, frame = tracker.get_hand_data()
 
     if fingers == 0:
         mode = "repel"
@@ -26,6 +26,6 @@ while not renderer.should_close():
         mode = "shape"
 
     ps.update(target, mode)
-    renderer.render()
+    renderer.render(frame)
 
 renderer.terminate()

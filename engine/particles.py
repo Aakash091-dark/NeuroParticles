@@ -24,9 +24,24 @@ class ParticleSystem:
             norm = direction / dist
 
             if mode == "attract":
-                self.velocities += norm * 0.5
+                force = 1000 / (dist + 10)
+                self.velocities += norm * force * 0.01
             elif mode == "repel":
-                self.velocities -= norm * 0.8
+                force = 1000 / (dist + 10)
+                self.velocities -= norm * force * 0.01
 
         self.velocities *= 0.95
         self.positions += self.velocities
+
+        # Bounce off walls
+        self.positions[:, 0] = np.clip(self.positions[:, 0], 0, self.width)
+        self.positions[:, 1] = np.clip(self.positions[:, 1], 0, self.height)
+
+        # Reverse velocity if hitting wall
+        hit_x_low = self.positions[:, 0] <= 0
+        hit_x_high = self.positions[:, 0] >= self.width
+        hit_y_low = self.positions[:, 1] <= 0
+        hit_y_high = self.positions[:, 1] >= self.height
+
+        self.velocities[hit_x_low | hit_x_high, 0] *= -0.8
+        self.velocities[hit_y_low | hit_y_high, 1] *= -0.8

@@ -1,4 +1,5 @@
 import glfw
+import cv2
 from OpenGL.GL import *
 
 class Renderer:
@@ -11,6 +12,17 @@ class Renderer:
         self.window = glfw.create_window(width, height, "NeuroParticle Engine", None, None)
         glfw.make_context_current(self.window)
 
+        glViewport(0, 0, width, height)
+
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        glOrtho(0, width, height, 0, -1, 1)
+
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+
+        glClearColor(0.1, 0.1, 0.1, 1)
+
         glPointSize(2)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -22,8 +34,17 @@ class Renderer:
                      self.ps.positions,
                      GL_DYNAMIC_DRAW)
 
-    def render(self):
+    def render(self, frame):
         glClear(GL_COLOR_BUFFER_BIT)
+
+        # Draw camera background
+        if frame is not None:
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frame_flipped = cv2.flip(frame_rgb, 0)
+            glRasterPos2f(0, self.ps.height)
+            glPixelZoom(self.ps.width / frame_flipped.shape[1], self.ps.height / frame_flipped.shape[0])
+            glDrawPixels(frame_flipped.shape[1], frame_flipped.shape[0],
+                         GL_RGB, GL_UNSIGNED_BYTE, frame_flipped)
 
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
         glBufferSubData(GL_ARRAY_BUFFER, 0,
