@@ -11,9 +11,9 @@ class Renderer:
 
         self.window = glfw.create_window(width, height, "NeuroParticle Engine", None, None)
         glfw.make_context_current(self.window)
+        glfw.swap_interval(0)  # Disable VSync
 
         glViewport(0, 0, width, height)
-
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
         glOrtho(0, width, height, 0, -1, 1)
@@ -37,14 +37,10 @@ class Renderer:
     def render(self, frame):
         glClear(GL_COLOR_BUFFER_BIT)
 
-        # Draw camera background
+        # Show camera preview in a separate OpenCV window
         if frame is not None:
-            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            frame_flipped = cv2.flip(frame_rgb, 0)
-            glRasterPos2f(0, self.ps.height)
-            glPixelZoom(self.ps.width / frame_flipped.shape[1], self.ps.height / frame_flipped.shape[0])
-            glDrawPixels(frame_flipped.shape[1], frame_flipped.shape[0],
-                         GL_RGB, GL_UNSIGNED_BYTE, frame_flipped)
+            cv2.imshow("Camera Preview", frame)
+            cv2.waitKey(1)
 
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
         glBufferSubData(GL_ARRAY_BUFFER, 0,
@@ -67,3 +63,4 @@ class Renderer:
 
     def terminate(self):
         glfw.terminate()
+        cv2.destroyAllWindows()

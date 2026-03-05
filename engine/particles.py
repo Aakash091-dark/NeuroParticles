@@ -1,7 +1,7 @@
 import numpy as np
 
 class ParticleSystem:
-    def __init__(self, width, height, count=10000):
+    def __init__(self, width, height, count=30000):
         self.width = width
         self.height = height
         self.count = count
@@ -20,15 +20,15 @@ class ParticleSystem:
 
         elif target is not None:
             direction = target - self.positions
-            dist = np.linalg.norm(direction, axis=1).reshape(-1, 1) + 0.1
+            dist = (direction[:, 0]**2 + direction[:, 1]**2).reshape(-1, 1) + 25
             norm = direction / dist
 
             if mode == "attract":
-                force = 1000 / (dist + 10)
-                self.velocities += norm * force * 0.01
+                force = 50000 / (dist + 50)
+                self.velocities += norm * force * 2.0
             elif mode == "repel":
-                force = 1000 / (dist + 10)
-                self.velocities -= norm * force * 0.01
+                force = 50000 / (dist + 50)
+                self.velocities -= norm * force * 2.0
 
         self.velocities *= 0.95
         self.positions += self.velocities
